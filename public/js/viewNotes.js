@@ -24,17 +24,24 @@ const getNotes = (userId) => {
 
 const renderDataAsHtml = (data) => {
   let cards = ``;
+  let archivedCards = ``;
   for (const noteItem in data) {
     const note = data[noteItem];
     // For each note create an HTML card
     const noteId = noteItem
-    cards += createCard(note, noteId)
+    if (note.isArchived) {
+      archivedCards += createCard(note, noteId, true)
+    }
+    else {
+      cards += createCard(note, noteId, false)
+    }
   };
   // Inject our string of HTML into our viewNotes.html page
-  document.querySelector('#app').innerHTML = cards;
+  document.querySelector('#app').innerHTML = cards
+  document.querySelector('#archive').innerHTML = archivedCards
 };
 
-const createCard = (note, noteId) => {
+const createCard = (note, noteId, isArchived) => {
   return `
     <div class="column is-one-quarter">
       <div class="card">
@@ -48,6 +55,9 @@ const createCard = (note, noteId) => {
           <a href="#" class="card-footer-item" onclick="editNote('${noteId}')">
             Edit
           </a>
+          <a href="#" class="card-footer-item" onclick="toggleArchiveNote('${noteId}', ${isArchived})">
+            ${isArchived ? "UnArchive" : "Archive"}
+          </a>
           <a href="#" class="card-footer-item" onclick="deleteNote('${noteId}')">
             Delete
           </a>
@@ -55,6 +65,12 @@ const createCard = (note, noteId) => {
       </div>
     </div>
   `;
+}
+
+const toggleArchiveNote = (noteId, isArchived) => {
+  if (confirm("Are you sure you want to archive this note?")) {
+    firebase.database().ref(`users/${googleUserId}/${noteId}`).update({isArchived: !isArchived});
+  }
 }
 
 const deleteNote = (noteId) => {
