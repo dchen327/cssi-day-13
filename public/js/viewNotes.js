@@ -27,13 +27,14 @@ const renderDataAsHtml = (data) => {
   for (const noteItem in data) {
     const note = data[noteItem];
     // For each note create an HTML card
-    cards += createCard(note)
+    const noteId = noteItem
+    cards += createCard(note, noteId)
   };
   // Inject our string of HTML into our viewNotes.html page
   document.querySelector('#app').innerHTML = cards;
 };
 
-const createCard = (note) => {
+const createCard = (note, noteId) => {
   return `
     <div class="column is-one-quarter">
       <div class="card">
@@ -43,7 +44,23 @@ const createCard = (note) => {
         <div class="card-content">
           <div class="content">${note.text}</div>
         </div>
+        <footer class="card-footer">
+          <a href="#" class="card-footer-item" onclick="editNote('${noteId}')">
+            Edit
+          </a>
+          <a href="#" class="card-footer-item" onclick="deleteNote('${noteId}')">
+            Delete
+          </a>
+        </footer>
       </div>
     </div>
   `;
+}
+
+const deleteNote = (noteId) => {
+  firebase.database().ref(`users/${googleUserId}/${noteId}`).remove();
+}
+
+const editNote = (noteId) => {
+  console.log("edit called on", noteId)
 }
