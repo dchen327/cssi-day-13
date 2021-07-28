@@ -14,11 +14,32 @@ window.onload = (event) => {
   });
 };
 
+// const getNotes = (userId) => {
+//   const notesRef = firebase.database().ref(`users/${userId}`).orderByChild("title");
+//   notesRef.on('value', (snapshot) => {
+//     const data = snapshot.val();
+//     renderDataAsHtml(data);
+//   });
+// };
+
 const getNotes = (userId) => {
-  const notesRef = firebase.database().ref(`users/${userId}`);
+  const notesRef = firebase.database().ref(`users/${userId}`).orderByChild("title");
   notesRef.on('value', (snapshot) => {
-    const data = snapshot.val();
-    renderDataAsHtml(data);
+    let cards = ``;
+    let archivedCards = ``;
+    snapshot.forEach((child) => {
+      let noteId = child.key
+      let note = child.val()
+      if (note.isArchived) {
+        archivedCards += createCard(note, noteId, true)
+      }
+      else {
+        cards += createCard(note, noteId, false)
+      }
+    })
+    // Inject our string of HTML into our viewNotes.html page
+    document.querySelector('#app').innerHTML = cards
+    document.querySelector('#archive').innerHTML = archivedCards
   });
 };
 
@@ -69,7 +90,7 @@ const createCard = (note, noteId, isArchived) => {
 
 const toggleArchiveNote = (noteId, isArchived) => {
   if (confirm("Are you sure you want to archive this note?")) {
-    firebase.database().ref(`users/${googleUserId}/${noteId}`).update({isArchived: !isArchived});
+    firebase.database().ref(`users/${googleUserId}/${noteId}`).update({ isArchived: !isArchived });
   }
 }
 
