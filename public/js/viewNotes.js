@@ -62,5 +62,31 @@ const deleteNote = (noteId) => {
 }
 
 const editNote = (noteId) => {
-  console.log("edit called on", noteId)
+  const editNoteModal = document.querySelector('#editNoteModal');
+  editNoteModal.classList.toggle('is-active')
+  const notesRef = firebase.database().ref(`users/${googleUserId}`);
+  notesRef.on('value', (snapshot) => {
+    const data = snapshot.val();
+    const note = data[noteId];
+    document.querySelector('#editNoteId').value = noteId;
+    document.querySelector('#editTitleInput').value = note.title;
+    document.querySelector('#editTextInput').value = note.text;
+  })
+}
+
+const closeEditModal = () => {
+  const editNoteModal = document.querySelector('#editNoteModal');
+  editNoteModal.classList.toggle('is-active');
+}
+
+const saveEditedNote = () => {
+  const noteId = document.querySelector('#editNoteId').value;
+  const noteTitle = document.querySelector('#editTitleInput').value;
+  const noteText = document.querySelector('#editTextInput').value;
+  const noteEdits = {
+    title: noteTitle,
+    text: noteText
+  };
+  firebase.database().ref(`users/${googleUserId}/${noteId}`).update(noteEdits);
+  closeEditModal();
 }
