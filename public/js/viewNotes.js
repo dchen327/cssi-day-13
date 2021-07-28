@@ -58,7 +58,9 @@ const createCard = (note, noteId) => {
 }
 
 const deleteNote = (noteId) => {
-  firebase.database().ref(`users/${googleUserId}/${noteId}`).remove();
+  if (confirm("Are you sure you want to delete this note?")) {
+    firebase.database().ref(`users/${googleUserId}/${noteId}`).remove();
+  }
 }
 
 const editNote = (noteId) => {
